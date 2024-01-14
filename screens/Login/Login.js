@@ -6,13 +6,14 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { styles } from "./styles";
 import axios from "axios";
+import { BASE_URL } from "../../constants/constants";
 const Login = ({ navigation }) => {
     const [name, setName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
 
     const register = () => {
         (async () => {
-            const BASE_URL = `https://chat-app-three-umber.vercel.app`;
+            
             const response = await axios.post(`${BASE_URL}/api/users`, {
                 name: name,
                 phoneNumber: phoneNumber,

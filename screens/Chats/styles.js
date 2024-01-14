@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
         color: "#666666",
         fontSize: 13,
     },
-    image: { width: 45, height: 45, backgroundColor: "red", borderRadius: 50 },
+    image: { width: 45, height: 45, backgroundColor: "#d1b4b494", borderRadius: 50 },
     name: {
         fontSize: 15,
         fontWeight: "600",

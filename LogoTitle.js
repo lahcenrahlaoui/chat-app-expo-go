@@ -31,7 +31,7 @@ function LogoTitle({ name, image }) {
                 }}
             >
                 <Image
-                    source={image}
+                    source={{uri : image}}
                     style={{
                         width: 35,
                         height: 35,

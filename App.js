@@ -1,72 +1,89 @@
 import "react-native-gesture-handler";
 
-import Chat from "./screens/Chat/Chat";
-import Chats from "./screens/Chats/Chats";
-import ImportDB from "./screens/ImportDB/ImportDB";
-
-import { NavigationContainer } from "@react-navigation/native";
-
+import RootNavigator from "./RootNavigator";
 import * as React from "react";
-import {useState} from  "react"
+import { useState, useEffect } from "react";
 
-import { createStackNavigator } from "@react-navigation/stack";
-
-import LogoTitle from "./LogoTitle";
-import Login from "./screens/Login/Login";
-const Stack = createStackNavigator();
-
-import { applyMiddleware, compose, createStore } from "redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Provider } from "react-redux";
-import reducers from "./reducers";
 
-import { thunk } from "redux-thunk";
-import Check from "./screens/Check/Check";
+import { PersistGate } from "redux-persist/integration/react";
 
-const store = createStore(reducers, compose(applyMiddleware(thunk)));
+import { store , storePersist } from "./store/store";
 
 const App = () => {
-    const [isSignedIn , setIsSignedIn] =  useState(true);
+    const [existData, setExistData] = useState();
+
+    // storeData("ssssss");
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const value = (await AsyncStorage.getItem("my-key")) || "";
+                if (value.length === 0) {
+                    setExistData(false);
+                } else {
+                    setExistData(true);
+                }
+            } catch (e) {
+                // error reading value
+            }
+        })();
+    }, []);
+
+    // const getData = async () => {
+    //     try {
+    //         const value = await AsyncStorage.getItem("my-key");
+
+    //         if (value !== null) {
+    //             console.log("value here ");
+    //             console.log(value);
+    //             return value;
+    //         } else {
+    //             console.log("no value    ");
+    //             return "";
+    //         }
+    //     } catch (e) {
+    //         // error reading value
+    //     }
+    // };
+
+ 
+    
+    // console.log(existData._j);
+    // options
+
     return (
         <Provider store={store}>
-            <NavigationContainer>
-                <Stack.Navigator>
-                    {isSignedIn ? (
-                        <>
-                            <Stack.Screen
-                                name="ImportDB"
-                                component={ImportDB}
-                            />
-                            <Stack.Screen name="Chats" component={Chats} />
-                            <Stack.Screen
-                                name="Chat"
-                                component={Chat}
-                                options={(route, navigation) => ({
-                                    headerTitle: (props) => {
-                                        props["image"] =
-                                            route.route.params.image;
-                                        props["name"] = route.route.params.name;
-                                        return <LogoTitle {...props} />;
-                                    },
-                                })}
-                            />
-                        </>
-                    ) : (
-                        <>
-                            <Stack.Screen name="Login" component={Login} />
-                            <Stack.Screen
-                                name="Check"
-                                component={Check}
-                                initialParams={{ setIsSignedIn: setIsSignedIn }}
-                            />
-                        </>
-                    )}
-                </Stack.Navigator>
-            </NavigationContainer>
+
+                <RootNavigator />
+
         </Provider>
     );
 };
 
 export default App;
+
+// import "react-native-gesture-handler";
+
+// import * as React from "react";
+
+// import { Provider } from "react-redux";
+
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// import { store } from "./store/store";
+// import RootNavigator from "./RootNavigator";
+
+// const App = () => {
+//     return (
+//         <Provider store={store}>
+//             <RootNavigator />
+//         </Provider>
+//     );
+// };
+
+// export default App;
 
 // import 'react-native-gesture-handler';
 

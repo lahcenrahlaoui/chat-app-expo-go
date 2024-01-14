@@ -32,7 +32,7 @@ const TopBar = () => {
             >
                 <Ionicons name="arrow-back" size={24} color="black" />
                 <Image
-                    source={img2}
+                    source={{uri : img2}}
                     style={{
                         width: 35,
                         height: 35,

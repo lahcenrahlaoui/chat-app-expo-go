@@ -9,15 +9,10 @@ import axios from "axios";
 const Check = (props) => {
     const [code, setCode] = useState("");
 
-    console.log("routeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
-    console.log("routeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
-    console.log("routeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
-    console.log("routeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
-    console.log("routeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
     const { setIsSignedIn } = props.route.params;
     const checkCode = () => {
         setIsSignedIn(true);
-        console.log("done");
+        console.warn("done!!!!!!!!");
     };
 
     return (

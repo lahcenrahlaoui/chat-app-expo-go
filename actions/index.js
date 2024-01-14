@@ -3,130 +3,39 @@ import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as SQLite from "expo-sqlite";
-
+import axios from "axios";
+import {
+    ADD_MESSAGE_TO_STORE,
+    ADD_NEW_CHAT,
+    ADD_NEW_USER,
+    BASE_URL,
+} from "../constants/constants";
 export const getMessages = () => (dispatch) => {
     // const messages =
     // const [db, setDb] = useState(SQLite.openDatabase("example.db"));
 };
 
-export const setMessage = (data) => (dispatch) => {
+export const setMessage = (data) => async (dispatch) => {
+    const preparedData = {
+        content: data.content,
+        from: data.current_user,
+        to: data.talkWithId,
+    };
 
-    console.log(data)
+    const response = await axios.post(`${BASE_URL}/api/messages`, preparedData);
+
+    const dataToRedux = {
+        id: response.data.message._id,
+        content: response.data.message.content,
+        createdAt: response.data.message.createdAt,
+        talkWithId: response.data.message.to,
+        status: 1,
+    };
+    console.log(dataToRedux);
+
     dispatch({
-        type: "ADD_MESSAGE",
-        payload: data,
-    });
-};
-
-export const importDataBase = () => async (dispatch) => {
-    // loading
-    dispatch({
-        type: "IS_LOADING",
-    });
-
-    // make db
-    let db = SQLite.openDatabase("example.db");
-
-    // import file
-    const importDb = async () => {
-        let result = await DocumentPicker.getDocumentAsync({
-            copyToCacheDirectory: true,
-        });
-
-        const file = FileSystem.documentDirectory + "SQLite";
-        const check = !(await FileSystem.getInfoAsync(file)).exists;
-        const encodingType = { encoding: FileSystem.EncodingType.Base64 };
-        if (check) {
-            await FileSystem.makeDirectoryAsync(file);
-        }
-
-        const base64 = await FileSystem.readAsStringAsync(
-            result.assets[0].uri,
-            encodingType
-        );
-
-        await FileSystem.writeAsStringAsync(
-            file + "/example.db",
-            base64,
-            encodingType
-        );
-
-        db.closeAsync();
-        db = SQLite.openDatabase("example.db");
-    };
-
-    await importDb();
-
-    // functions
-    const failliarAll = (txObj, error) => {
-        console.log(error);
-    };
-    const successAll = async (txObj, resultSet) => {
-        dispatch({
-            type: "IMPORT_DB",
-            payload: resultSet.rows._array,
-        });
-        // dispatch({
-        //     type: "LOAD_CHATS",
-        //     payload: resultSet.rows._array,
-        // });
-    };
-
-    // transaction
-    db.transaction((tx) => {
-        tx.executeSql(
-            "SELECT talkWith FROM messages GROUP BY talkWith",
-            null,
-            successAll,
-            failliarAll
-        );
-    });
-
-    ////////////////////////////
-    ////////////////////////////
-    ////////////////////////////
-    ////////////////////////////
-    ////////////////////////////
-    // functions
-    const failliarChats = (txObj, error) => {
-        console.log(error);
-    };
-    const successChats = async (txObj, resultSet) => {
-        dispatch({
-            type: "LOAD_CHATS",
-            payload: resultSet.rows._array,
-        });
-    };
-
-    // transaction
-    db.transaction((tx) => {
-        tx.executeSql(
-            "SELECT  talkWith , content , createdAt  FROM messages  GROUP BY talkWith  ",
-            null,
-            successChats,
-            failliarChats
-        );
-    });
-
-    // functions messages
-    const failliarMessages = (txObj, error) => {
-        console.log(error);
-    };
-    const successMessages = async (txObj, resultSet) => {
-        dispatch({
-            type: "LOAD_MESSAGES",
-            payload: resultSet.rows._array,
-        });
-    };
-
-    // transaction
-    db.transaction((tx) => {
-        tx.executeSql(
-            "SELECT * FROM messages ",
-            null,
-            successMessages,
-            failliarMessages
-        );
+        type: ADD_MESSAGE_TO_STORE,
+        payload: dataToRedux,
     });
 };
 
@@ -155,16 +64,41 @@ export const createDataBase = () => async (dispatch) => {
 };
 
 export const addChat = (search, navigation) => async (dispatch) => {
-    const user = {
-        name: search,
+    const response = await axios.get(`${BASE_URL}/api/users`, {
+        params: { _id: search },
+    });
+
+    // warning dont use this syntax .... just return object from the server use it here
+    // exp ::>> const user = response.data.user     <---- without the array syntax ...
+    const user = response.data.user[0];
+
+    console.log(user);
+    const preparedChat = {
+        content: "",
+        createdat: Date.now(),
+        talkWithId: user._id,
     };
 
     dispatch({
-        type: "ADD_CHAT",
-        payload: user,
+        type: ADD_NEW_CHAT,
+        payload: preparedChat,
     });
-    navigation.navigate("Chat", {
+
+    const preparedUser = {
+        _id: user._id,
         name: user.name,
-        image: user.image,
+        phoneNumber: user.phoneNumber,
+        picture: user.picture,
+    };
+
+      dispatch({
+        type: ADD_NEW_USER,
+        payload: preparedUser,
+    });
+
+    navigation.navigate("Chat", {
+        talkWithId: user._id,
+        name: user.name,
+        image: user.picture,
     });
 };

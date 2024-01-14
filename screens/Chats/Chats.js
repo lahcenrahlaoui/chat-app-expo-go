@@ -1,12 +1,5 @@
 import { useRef, useState } from "react";
-import {
-    View,
-    Text,
-    ScrollView,
-    Image,
-    TextInput,
-    TouchableOpacity,
-} from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 
 // expo imports
 import * as DocumentPicker from "expo-document-picker";
@@ -16,42 +9,70 @@ import * as SQLite from "expo-sqlite";
 
 import { img_1 as img } from "../../images";
 
-// import data users placeholder
-import { users } from "../../utils";
-
 import { styles } from "./styles";
-
 import SearchComponent from "./SearchComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { addChat } from "../../actions";
+
+// start component
+
 function Chats({ navigation }) {
+    // get data from redux
+
+    const { chats, users } = useSelector((state) => {
+        return {
+            chats: state.chats,
+            users: state.users,
+        };
+    });
+
     const [search, setSearch] = useState("");
 
     const dispatch = useDispatch();
     const handleSearch = () => {
-        console.log(search);
         dispatch(addChat(search, navigation));
     };
 
-    const state = useSelector((state) => state.chats);
+    // useEffect(() => {
+    //     console.log("usersState");
+    //     (async () => {
+    //         // this is for one user , lets say that user has the next id >> 65a2a5bc06111d8be89165b0
+    //         // const response = await axios.get(`${BASE_URL}/api/users/all`, {
+    //         //     params: { _id: "65a2a5bc06111d8be89165b0" },
+    //         // });
+    //         const response = await axios.get(`${BASE_URL}/api/users/all`, {
+    //             params: { _ids: usersState.data },
+    //         });
 
-    const showUsers = state?.data?.map((user, index) => {
+    //         setUsersData(response.data.users);
+    //     })();
+    // }, [usersState]);
+
+    const showUsers = chats?.data?.map((user, index) => {
+        const u = users?.data?.filter((x) => x._id === user.talkWithId)[0];
+
         return (
             <View key={index}>
                 <TouchableOpacity
                     onPress={() =>
                         navigation.navigate("Chat", {
-                            name: user.talkWith,
-                            image: user.image,
+                            talkWithId: user.talkWithId,
+                            name: u?.name,
+                            image: u?.picture,
                         })
                     }
                 >
                     <View style={styles.showUsers}>
-                        <Image source={user.image} style={styles.image} />
+                        <Image
+                            source={{
+                                uri: u?.picture,
+                            }}
+                            style={styles.image}
+                        />
                         <View style={styles.userContainer}>
-                            <Text style={styles.name}>{user.talkWith}</Text>
+                            <Text style={styles.name}>{u?.name}</Text>
                             <Text style={styles.message}>{user.content}</Text>
-                            <Text style={styles.message}>{user.createdAt}</Text>
+                            <Text style={styles.message}>{user.createdat}</Text>
                         </View>
                     </View>
                     <View
@@ -88,13 +109,11 @@ function Chats({ navigation }) {
                             gap: 10,
                         }}
                     >
-                        {showUsers.length ? (
+                        {showUsers?.length ? (
                             showUsers
                         ) : (
                             <Text>there is no users , search for friends </Text>
                         )}
-
-                        {/* <Text>{JSON.stringify(state)}</Text> */}
                     </ScrollView>
                 </View>
             </View>
